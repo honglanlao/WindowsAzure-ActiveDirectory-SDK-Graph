@@ -1,6 +1,6 @@
 package com.microsoft.windowsazure.activedirectory.sdk.graph.helper;
 
-import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SampleAppException;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SdkException;
 
 /**
  * This is a simple utitility class for the java sample application.
@@ -14,10 +14,10 @@ public class SampleAppUtilities {
 	/**
 	 * This method does all the initializes, such as get all
 	 * the verified Domains, all the groups, roles etc.
-	 * @throws SampleAppException
+	 * @throws SdkException
 	 */ 
-	public static void initApp() throws SampleAppException{
-		
-	}
+//	public static void initApp() throws SdkException{
+//		
+//	}
 
 }

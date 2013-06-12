@@ -20,8 +20,8 @@ import javax.crypto.spec.SecretKeySpec;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.microsoft.azure.activedirectory.sampleapp.config.SampleConfig;
-import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SampleAppException;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.config.SdkConfig;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SdkException;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.helper.HttpClientHelper;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.helper.JSONHelper;
 //import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
@@ -123,10 +123,10 @@ public class JWTTokenHelper {
 	 * @param webToken JSON Web Token.
 	 * @param signingKey Symmetric signing key.
 	 * @return Self Signed Assertion.
-	 * @throws SampleAppException If the operation is not successful.
+	 * @throws SdkException If the operation is not successful.
 	 */
 	public static String generateAssertion(JsonWebToken webToken,
-			String signingKey) throws SampleAppException  {
+			String signingKey) throws SdkException  {
 
 		TokenHeader tokenHeaderContract = new TokenHeader("HS256", "");
 		String tokenHeader = Base64Utils.encode(tokenHeaderContract.encodeToJson());				
@@ -144,9 +144,9 @@ public class JWTTokenHelper {
 	 * @param signingKey The Signing Key.
 	 * @param rawToken The rawToken that needs to be signed.
 	 * @return Signed byte array.
-	 * @throws SampleAppException
+	 * @throws SdkException
 	 */
-	private static byte[] signData(String signingKey, String rawToken) throws SampleAppException {
+	private static byte[] signData(String signingKey, String rawToken) throws SdkException {
 		SecretKeySpec secretKey = null;
 		secretKey = new SecretKeySpec((byte[]) Base64.decodeBase64(signingKey.getBytes()), "HmacSHA256");
 		Mac mac;
@@ -159,7 +159,7 @@ public class JWTTokenHelper {
 			signedData = mac.doFinal();
 			
 		} catch (Exception e) {
-			throw new SampleAppException(SampleConfig.ErrorGeneratingToken, SampleConfig.ErrorGeneratingTokenMessage, e);
+			throw new SdkException(SdkConfig.ErrorGeneratingToken, SdkConfig.ErrorGeneratingTokenMessage, e);
 		}		
 		return signedData;
 	}
@@ -171,10 +171,10 @@ public class JWTTokenHelper {
 	 * @param assertion Assertion Token.
 	 * @param resource ExpiresIn name.
 	 * @return The OAuth access token.
-	 * @throws SampleAppException If the operation can not be completed successfully.
+	 * @throws SdkException If the operation can not be completed successfully.
 	 */
 	public static String getOAuthAccessTokenFromACS(String stsUrl,
-			String assertion, String resource) throws SampleAppException {
+			String assertion, String resource) throws SdkException {
 		
 		String accessToken = "";
 				
@@ -214,13 +214,13 @@ public class JWTTokenHelper {
 			return String.format("%s%s", JWTTokenHelper.bearerTokenPrefix, accessToken);
 			
 		} catch (Exception e2) {
-			throw new SampleAppException(SampleConfig.ErrorGeneratingToken, SampleConfig.ErrorGeneratingTokenMessage, e2);
+			throw new SdkException(SdkConfig.ErrorGeneratingToken, SdkConfig.ErrorGeneratingTokenMessage, e2);
 		}
 	}
 	
 	
 	public static String GetTokenFromUrl(String acsUrl, String tenantContextId, String appPrincipalId,
-			String protectedResourceHostName, String password) throws SampleAppException{
+			String protectedResourceHostName, String password) throws SdkException{
 		
 		String accessToken = "";
 		HttpURLConnection conn = null;
@@ -260,18 +260,18 @@ public class JWTTokenHelper {
 			
 		
 		} catch (MalformedURLException e) {
-			throw new SampleAppException(SampleConfig.ErrorGeneratingToken, SampleConfig.ErrorGeneratingTokenMessage, e);
+			throw new SdkException(SdkConfig.ErrorGeneratingToken, SdkConfig.ErrorGeneratingTokenMessage, e);
 		} catch (IOException e) {
 			String badRespStr = null;
 			try {
 				badRespStr = HttpClientHelper.getResponseStringFromConn(conn, false);
 			} catch (IOException e1) {
-				throw new SampleAppException(SampleConfig.ErrorGeneratingToken, SampleConfig.ErrorGeneratingTokenMessage, e);
+				throw new SdkException(SdkConfig.ErrorGeneratingToken, SdkConfig.ErrorGeneratingTokenMessage, e);
 			}
 			logger.info("badRespStr ->" + badRespStr);
 			return badRespStr;
 		} catch (JSONException e) {
-			throw new SampleAppException(SampleConfig.ErrorGeneratingToken, SampleConfig.ErrorGeneratingTokenMessage, e);
+			throw new SdkException(SdkConfig.ErrorGeneratingToken, SdkConfig.ErrorGeneratingTokenMessage, e);
 		} 
 	
 	}

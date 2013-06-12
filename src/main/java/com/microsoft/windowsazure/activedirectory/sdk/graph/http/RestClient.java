@@ -11,8 +11,9 @@ import org.apache.log4j.PropertyConfigurator;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.microsoft.azure.activedirectory.sampleapp.config.SampleConfig;
-import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SampleAppException;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.config.SdkConfig;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.config.TenantConfiguration;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SdkException;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.helper.HttpClientHelper;
 
 /**
@@ -26,7 +27,8 @@ public class RestClient implements WsHttpHandler {
 	private String protocol;
 	private String endPoint;
 	private String TenantContextId;
-	private Logger logger  = Logger.getLogger(RestClient.class);	
+	private Logger logger  = Logger.getLogger(RestClient.class);
+//	private static final SdkConfig CONFIG = SdkConfig.getInstance();
 
 	
 	public RestClient(String protocol, String endpoint, String TenantContextId) {
@@ -38,14 +40,14 @@ public class RestClient implements WsHttpHandler {
 
 	}
 	
-	public byte[] GET(String controller, String paramStr) throws SampleAppException {
+	public byte[] GET(String controller, String paramStr) throws SdkException {
 		
 		HttpURLConnection conn = null;
 		JSONObject response = new JSONObject();	
 		if(paramStr == null){
-			paramStr = SampleConfig.APIVERSION_HEADER + "=" + SampleConfig.getApiVersion();
+			paramStr = SdkConfig.APIVERSION_HEADER + "=" + SdkConfig.apiVersion;
 		}else{
-			paramStr = SampleConfig.APIVERSION_HEADER + "=" + SampleConfig.getApiVersion() + "&" + paramStr;
+			paramStr = SdkConfig.APIVERSION_HEADER + "=" + SdkConfig.apiVersion + "&" + paramStr;
 		}
 		try {
 			// Construct the URI from the different parts.
@@ -61,10 +63,10 @@ public class RestClient implements WsHttpHandler {
 			conn = (HttpURLConnection) url.openConnection();
 
 			// Set the appropriate header fields in the request header.  below should be in property field of this class
-			conn.setRequestProperty(SampleConfig.APIVERSION_HEADER, SampleConfig.getApiVersion());
-			conn.setRequestProperty(SampleConfig.AUTHORIZATION_HEADER, SampleConfig.getAccessToken());
-			conn.setRequestProperty(SampleConfig.ACCEPT_HEADER, "*/*");
-			conn.setRequestProperty(SampleConfig.ACCEPT_HEADER, SampleConfig.ACCEPT_HEADER_VALUE);
+			conn.setRequestProperty(SdkConfig.APIVERSION_HEADER, SdkConfig.apiVersion);
+			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, TenantConfiguration.getAccessToken());
+			conn.setRequestProperty(SdkConfig.ACCEPT_HEADER, "*/*");
+			conn.setRequestProperty(SdkConfig.ACCEPT_HEADER, SdkConfig.ACCEPT_HEADER_VALUE);
 
 			byte[] imageInByte = HttpClientHelper.getByteaArrayFromConn(conn, true);
 			return imageInByte;
@@ -76,28 +78,28 @@ public class RestClient implements WsHttpHandler {
 				// Parse the JSON String and retrieve the error code and message				
 				int responseCode = conn.getResponseCode();	
 				response = HttpClientHelper.processBadRespStr(responseCode, badRespStr);
-				throw new SampleAppException(response.optString("errorCode"), response.optString("errorMsg"), e);
+				throw new SdkException(response.optString("errorCode"), response.optString("errorMsg"), e);
 	
 			} catch (IOException e1) {
-				throw new SampleAppException(SampleConfig.ErrorCodeNotReceived, SampleConfig.ErrorCodeNotReceivedMessage, e1 );
+				throw new SdkException(SdkConfig.ErrorCodeNotReceived, SdkConfig.ErrorCodeNotReceivedMessage, e1 );
 			} catch(JSONException e2){
 				// If the error message couldn't sucessfully parsed. 
-				throw new SampleAppException(SampleConfig.ErrorConnectingRestService, SampleConfig.ErrorConnectingRestServiceMessage, e2);
+				throw new SdkException(SdkConfig.ErrorConnectingRestService, SdkConfig.ErrorConnectingRestServiceMessage, e2);
 			}
 			
 		} catch (URISyntaxException e) {
-			throw new SampleAppException(SampleConfig.UriSyntaxException, SampleConfig.UriSyntaxExceptionMessage, e);
+			throw new SdkException(SdkConfig.UriSyntaxException, SdkConfig.UriSyntaxExceptionMessage, e);
 		}	
 	}
 	
-	public JSONObject GET(String controller, String paramStr, String fragment) throws SampleAppException {
+	public JSONObject GET(String controller, String paramStr, String fragment) throws SdkException {
 
 		HttpURLConnection conn = null;
 		JSONObject response = new JSONObject();
 		if(paramStr == null){
-			paramStr = SampleConfig.APIVERSION_HEADER + "=" + SampleConfig.getApiVersion();
+			paramStr = SdkConfig.APIVERSION_HEADER + "=" + SdkConfig.apiVersion;
 		}else{
-			paramStr = SampleConfig.APIVERSION_HEADER + "=" + SampleConfig.getApiVersion() + "&" + paramStr;
+			paramStr = SdkConfig.APIVERSION_HEADER + "=" + SdkConfig.apiVersion + "&" + paramStr;
 		}
 		try {
 			// Construct the URI from the different parts.
@@ -114,9 +116,9 @@ public class RestClient implements WsHttpHandler {
 			conn = (HttpURLConnection) url.openConnection();
 
 			// Set the appropriate header fields in the request header.
-			conn.setRequestProperty(SampleConfig.APIVERSION_HEADER, SampleConfig.getApiVersion());
-			conn.setRequestProperty(SampleConfig.AUTHORIZATION_HEADER, SampleConfig.getAccessToken());
-			conn.setRequestProperty(SampleConfig.ACCEPT_HEADER, SampleConfig.ACCEPT_HEADER_VALUE);
+			conn.setRequestProperty(SdkConfig.APIVERSION_HEADER, SdkConfig.apiVersion);
+			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, TenantConfiguration.getAccessToken());
+			conn.setRequestProperty(SdkConfig.ACCEPT_HEADER, SdkConfig.ACCEPT_HEADER_VALUE);
 			
 			String goodRespStr = HttpClientHelper.getResponseStringFromConn(conn, true);
 		//	logger.info("goodRespStr ->" + goodRespStr);
@@ -131,18 +133,18 @@ public class RestClient implements WsHttpHandler {
 				logger.info("badRespStr ->" + badRespStr);
 				int responseCode = conn.getResponseCode();				
 				response = HttpClientHelper.processBadRespStr(responseCode, badRespStr);
-			//	throw new SampleAppException(response.optString("errorCode"), response.optString("errorMsg"), e);
+			//	throw new SdkException(response.optString("errorCode"), response.optString("errorMsg"), e);
 					
 			} catch (IOException e1) {
-				throw new SampleAppException(SampleConfig.ErrorCodeNotReceived, SampleConfig.ErrorCodeNotReceivedMessage, e1 );
+				throw new SdkException(SdkConfig.ErrorCodeNotReceived, SdkConfig.ErrorCodeNotReceivedMessage, e1 );
 			} catch(JSONException e2){
 				// If the error message couldn't sucessfully parsed. 
-				throw new SampleAppException(SampleConfig.ErrorConnectingRestService, SampleConfig.ErrorConnectingRestServiceMessage, e2);
+				throw new SdkException(SdkConfig.ErrorConnectingRestService, SdkConfig.ErrorConnectingRestServiceMessage, e2);
 			}		
 		} catch (URISyntaxException e) {
-			throw new SampleAppException(SampleConfig.UriSyntaxException, SampleConfig.UriSyntaxExceptionMessage, e);
+			throw new SdkException(SdkConfig.UriSyntaxException, SdkConfig.UriSyntaxExceptionMessage, e);
 		} catch (JSONException e) {
-			throw new SampleAppException(SampleConfig.ErrorConnectingRestService, SampleConfig.ErrorConnectingRestServiceMessage, e);
+			throw new SdkException(SdkConfig.ErrorConnectingRestService, SdkConfig.ErrorConnectingRestServiceMessage, e);
 		}
 		return response;
 	}
@@ -154,9 +156,9 @@ public class RestClient implements WsHttpHandler {
 	 * @param data Data that would be put to the http request POST/PATCH body.
 	 * @param opName The name of the operation that is invoking this method.
 	 * @return response JSONObject
-	 * @throws SampleAppException 
+	 * @throws SdkException 
 	 */
-	public JSONObject POST(String controller, String paramStr, String payLoad, String action, String fragment) throws SampleAppException{
+	public JSONObject POST(String controller, String paramStr, String payLoad, String action, String fragment) throws SdkException{
 
 		URI uri = null;
 		URL url = null;
@@ -169,13 +171,13 @@ public class RestClient implements WsHttpHandler {
 				uri = new URI(this.protocol, 
 								  this.endPoint,
 								  "/" + this.TenantContextId + controller,
-								  SampleConfig.APIVERSION_HEADER + "=" + SampleConfig.getApiVersion() + "&" + paramStr, 
+								  SdkConfig.APIVERSION_HEADER + "=" + SdkConfig.apiVersion + "&" + paramStr, 
 						          fragment);
 			}else if(action.startsWith("add")){
 				uri = new URI(this.protocol, 
 						  this.endPoint,
 						  "/" + this.TenantContextId + controller + paramStr,
-						  SampleConfig.APIVERSION_HEADER + "=" + SampleConfig.getApiVersion(),  // set null so ? will not be appended
+						  SdkConfig.APIVERSION_HEADER + "=" + SdkConfig.apiVersion,  // set null so ? will not be appended
 				          fragment);
 			}
 					
@@ -190,10 +192,10 @@ public class RestClient implements WsHttpHandler {
 			conn.setRequestMethod("POST");
 					
 			// Set the appropriate request header fields.
-		//	conn.setRequestProperty(SampleConfig.APIVERSION_HEADER, SampleConfig.getApiVersion());
-			conn.setRequestProperty(SampleConfig.AUTHORIZATION_HEADER, SampleConfig.getAccessToken());
-			conn.setRequestProperty(SampleConfig.ACCEPT_HEADER, SampleConfig.ACCEPT_HEADER_VALUE);	
-			conn.setRequestProperty(SampleConfig.CONTENTTYPE_HEADER, SampleConfig.CONTENTTYPE_HEADER_VALUE);
+		//	conn.setRequestProperty(SdkConfig.APIVERSION_HEADER, SdkConfig.getApiVersion());
+			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, TenantConfiguration.getAccessToken());
+			conn.setRequestProperty(SdkConfig.ACCEPT_HEADER, SdkConfig.ACCEPT_HEADER_VALUE);	
+			conn.setRequestProperty(SdkConfig.CONTENTTYPE_HEADER, SdkConfig.CONTENTTYPE_HEADER_VALUE);
 			
 			 
 			String goodRespStr = HttpClientHelper.getResponseStringFromConn(conn, payLoad);
@@ -231,7 +233,7 @@ public class RestClient implements WsHttpHandler {
 	}
 	
 	
-	public JSONObject PATCH(String controller, String paramStr, String payLoad, String action, String fragment) throws SampleAppException{
+	public JSONObject PATCH(String controller, String paramStr, String payLoad, String action, String fragment) throws SdkException{
 
 		URI uri = null;
 		URL url = null;
@@ -242,7 +244,7 @@ public class RestClient implements WsHttpHandler {
 			uri = new URI(this.protocol, 
 					  this.endPoint,
 					  "/" + this.TenantContextId + controller + paramStr,
-					  SampleConfig.APIVERSION_HEADER + "=" + SampleConfig.getApiVersion(),  // set null so ? will not be appended
+					  SdkConfig.APIVERSION_HEADER + "=" + SdkConfig.apiVersion,  // set null so ? will not be appended
 			          fragment);
 					
 			// Open an URL Connection.
@@ -256,10 +258,10 @@ public class RestClient implements WsHttpHandler {
 			conn.setRequestMethod("POST");
 					
 			// Set the appropriate request header fields.
-		//	conn.setRequestProperty(SampleConfig.APIVERSION_HEADER, SampleConfig.getApiVersion());
-			conn.setRequestProperty(SampleConfig.AUTHORIZATION_HEADER, SampleConfig.getAccessToken());
-			conn.setRequestProperty(SampleConfig.ACCEPT_HEADER, SampleConfig.ACCEPT_HEADER_VALUE);	
-			conn.setRequestProperty(SampleConfig.CONTENTTYPE_HEADER, SampleConfig.CONTENTTYPE_HEADER_VALUE);
+		//	conn.setRequestProperty(SdkConfig.APIVERSION_HEADER, SdkConfig.getApiVersion());
+			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, TenantConfiguration.getAccessToken());
+			conn.setRequestProperty(SdkConfig.ACCEPT_HEADER, SdkConfig.ACCEPT_HEADER_VALUE);	
+			conn.setRequestProperty(SdkConfig.CONTENTTYPE_HEADER, SdkConfig.CONTENTTYPE_HEADER_VALUE);
 
 			// Set X-HTTP-Method to PATCH for update request			
 			conn.setRequestProperty("X-HTTP-Method", "PATCH");			
@@ -290,7 +292,7 @@ public class RestClient implements WsHttpHandler {
 	
 	
 	
-	public JSONObject DELETE(String controller, String paramStr, String payLoad, String action, String fragment) throws SampleAppException{
+	public JSONObject DELETE(String controller, String paramStr, String payLoad, String action, String fragment) throws SdkException{
 		
 		URL url = null;
 		HttpURLConnection conn = null;
@@ -303,7 +305,7 @@ public class RestClient implements WsHttpHandler {
 			URI uri = new URI(this.protocol, 
 							  this.endPoint,
 							  "/" + this.TenantContextId + controller + paramStr,
-							  SampleConfig.APIVERSION_HEADER + "=" + SampleConfig.getApiVersion(),  // set null so ? will not be appended
+							  SdkConfig.APIVERSION_HEADER + "=" + SdkConfig.apiVersion,  // set null so ? will not be appended
 					          fragment);
 					
 			// Open an URL Connection.
@@ -314,11 +316,11 @@ public class RestClient implements WsHttpHandler {
 			// Set method to POST.
 			conn.setRequestMethod("DELETE");
 			// Set the appropriate request header fields.
-		//	conn.setRequestProperty(SampleConfig.APIVERSION_HEADER, SampleConfig.getApiVersion());
-			conn.setRequestProperty(SampleConfig.AUTHORIZATION_HEADER, SampleConfig.getAccessToken());
-			conn.setRequestProperty(SampleConfig.CONTENTTYPE_HEADER, SampleConfig.CONTENTTYPE_HEADER_VALUE);
+		//	conn.setRequestProperty(SdkConfig.APIVERSION_HEADER, SdkConfig.getApiVersion());
+			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, TenantConfiguration.getAccessToken());
+			conn.setRequestProperty(SdkConfig.CONTENTTYPE_HEADER, SdkConfig.CONTENTTYPE_HEADER_VALUE);
 
-			conn.setRequestProperty(SampleConfig.ACCEPT_HEADER, SampleConfig.ACCEPT_HEADER_VALUE);
+			conn.setRequestProperty(SdkConfig.ACCEPT_HEADER, SdkConfig.ACCEPT_HEADER_VALUE);
 
 			int responseCode = conn.getResponseCode();
 			// if success, responseMsg is empty string

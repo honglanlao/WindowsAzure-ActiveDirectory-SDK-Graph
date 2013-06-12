@@ -3,8 +3,9 @@ package com.microsoft.windowsazure.activedirectory.sdk.graph.services;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.microsoft.azure.activedirectory.sampleapp.config.SampleConfig;
-import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SampleAppException;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.config.SdkConfig;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.config.TenantConfiguration;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SdkException;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.helper.JSONHelper;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.http.RestClient;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.models.Group;
@@ -19,18 +20,18 @@ import com.microsoft.windowsazure.activedirectory.sdk.graph.models.UserList;
  */
 public class GroupService {
 
-		
-	public static RestClient restClient = new RestClient(SampleConfig.PROTOCOL_NAME, 
-														 SampleConfig.getRestServiceHost(),
-														 SampleConfig.getTenantContextId());
+	private static final TenantConfiguration TENANTCONFIG = TenantConfiguration.getInstance();
 
+	public static RestClient restClient = new RestClient(SdkConfig.PROTOCOL_NAME, 
+														 SdkConfig.restServiceHost,
+														 TENANTCONFIG.getTenantContextId());
 
 	/**
 	 * @param objectId
 	 * @return
-	 * @throws SampleAppException
+	 * @throws SdkException
 	 */
-	public static UserList getUsersForGroup(String objectId)  throws SampleAppException {
+	public static UserList getUsersForGroup(String objectId)  throws SdkException {
 		String paramString = String.format("/%s/members", objectId);
 		JSONObject response = restClient.GET("/groups" + paramString, null, null);
 		
@@ -58,11 +59,11 @@ public class GroupService {
 	 * @param opName The operator name that would be applied to the attribute.
 	 * @param searchString The string that would be searched for this attribute.
 	 * @return A page of groups satisfying this query criteria.
-	 * @throws SampleAppException If the operation can not be carried out successfully.
+	 * @throws SdkException If the operation can not be carried out successfully.
 	 */
 	public static GroupList queryGroups(String attributeName, 
 									  String opName, 
-									  String searchString) throws SampleAppException {
+									  String searchString) throws SdkException {
 
 		// This object would hold all the group information. 
 		GroupList thisPage = new GroupList();
@@ -76,7 +77,7 @@ public class GroupService {
 				
 				// If any of the agruments are empty or null, throw an exception. In the ideal case,
 				// this case should never happen since this case should be taken care of in the client side. 	
-				throw new SampleAppException(SampleConfig.internalError, SampleConfig.internalErrorMessage, null);
+				throw new SdkException(SdkConfig.internalError, SdkConfig.internalErrorMessage, null);
 		}
 		
 		// Build the paramString.

@@ -15,9 +15,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.microsoft.azure.activedirectory.sampleapp.config.SampleConfig;
-import com.microsoft.azure.activedirectory.sampleapp.controllers.RoleServlet;
-import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SampleAppException;
+
+import com.microsoft.windowsazure.activedirectory.sdk.graph.config.SdkConfig;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SdkException;
 
 /**
  * This class provides the methods to parse JSON Data from a JSON Formatted String.
@@ -37,9 +37,9 @@ public class JSONHelper {
 	 * a string.
 	 * @param jSonData The JSON String that holds the collection.
 	 * @return An JSON Array that would contains all the collection object.
-	 * @throws SampleAppException 
+	 * @throws SdkException 
 	 */  
-	public static JSONArray fetchDirectoryObjectJSONArray(JSONObject jsonObject) throws SampleAppException {
+	public static JSONArray fetchDirectoryObjectJSONArray(JSONObject jsonObject) throws SdkException {
 		JSONArray jsonArray = new JSONArray();	
 		jsonArray = jsonObject.optJSONObject("responseMsg").optJSONArray("value");
 		return jsonArray;
@@ -49,9 +49,9 @@ public class JSONHelper {
 	 * This method parses an JSON Object out of a collection of JSON Objects within a string
 	 * @param jsonObject
 	 * @return An JSON Object that would contains the DirectoryObject.
-	 * @throws SampleAppException
+	 * @throws SdkException
 	 */
-	public static JSONObject fetchDirectoryObjectJSONObject(JSONObject jsonObject) throws SampleAppException {
+	public static JSONObject fetchDirectoryObjectJSONObject(JSONObject jsonObject) throws SdkException {
 		JSONObject jObj = new JSONObject();	
 		jObj = jsonObject.optJSONObject("responseMsg");
 		return jObj;
@@ -61,9 +61,9 @@ public class JSONHelper {
 	 * This method parses the skip token from a json formatted string.
 	 * @param jsonData The JSON Formatted String.
 	 * @return The skipToken.
-	 * @throws SampleAppException 
+	 * @throws SdkException 
 	 */
-	public static String fetchNextSkiptoken(JSONObject jsonObject) throws SampleAppException {
+	public static String fetchNextSkiptoken(JSONObject jsonObject) throws SdkException {
 		String skipToken = "";	
 		// Parse the skip token out of the string.
 		skipToken =jsonObject.optJSONObject("responseMsg").optString("odata.nextLink");
@@ -79,9 +79,9 @@ public class JSONHelper {
 	/**
 	 * @param jsonObject
 	 * @return
-	 * @throws SampleAppException
+	 * @throws SdkException
 	 */
-	public static String fetchDeltaLink(JSONObject jsonObject) throws SampleAppException {
+	public static String fetchDeltaLink(JSONObject jsonObject) throws SdkException {
 		String deltaLink = "";	
 		// Parse the skip token out of the string.
 		deltaLink = jsonObject.optJSONObject("responseMsg").optString("aad.deltaLink");
@@ -103,10 +103,10 @@ public class JSONHelper {
 	 * set from the HttpServletRequest request.	
 	 * @param request The HttpServletRequest
 	 * @return the string containing the JSON document.
-	 * @throws SampleAppException If there is any error processing the request.
+	 * @throws SdkException If there is any error processing the request.
 	 */
 	@SuppressWarnings("unchecked")
-	public static String createJSONString(HttpServletRequest request, String controller) throws SampleAppException {
+	public static String createJSONString(HttpServletRequest request, String controller) throws SdkException {
 		JSONObject obj = new JSONObject();
 		try{	
 			Field[] allFields = Class.forName("com.microsoft.windowsazure.activedirectory.sdk.graph.models." + controller).getDeclaredFields();
@@ -151,9 +151,9 @@ public class JSONHelper {
 	 * @param key  
 	 * @param value
 	 * @return string format of this JSON obje
-	 * @throws SampleAppException
+	 * @throws SdkException
 	 */
-	public static String createJSONString(String key, String value) throws SampleAppException {
+	public static String createJSONString(String key, String value) throws SdkException {
 	
 		JSONObject obj = new JSONObject();
 		try {
@@ -170,9 +170,9 @@ public class JSONHelper {
 	 * generic object.
 	 * @param jsonObject The jsonObject from where the attributes are to be copied.
 	 * @param destObject The object where the attributes should be copied into.
-	 * @throws SampleAppException Throws a SampleAppException when the operation are unsuccessful.
+	 * @throws SdkException Throws a SdkException when the operation are unsuccessful.
 	 */
-    public static <T> void convertJSONObjectToDirectoryObject(JSONObject jsonObject, T destObject) throws SampleAppException{
+    public static <T> void convertJSONObjectToDirectoryObject(JSONObject jsonObject, T destObject) throws SdkException{
     	
     	// Get the list of all the field names.
     	Field[] fieldList = destObject.getClass().getDeclaredFields();
@@ -189,8 +189,8 @@ public class JSONHelper {
 					invoke(destObject, 
 							new Object[]{jsonObject.optString(fieldList[i].getName())});
 				} catch (Exception e) {
-					throw new SampleAppException(
-							SampleConfig.internalError, SampleConfig.internalErrorMessage, e);
+					throw new SdkException(
+							SdkConfig.internalError, SdkConfig.internalErrorMessage, e);
 				} 
     		}
     	}

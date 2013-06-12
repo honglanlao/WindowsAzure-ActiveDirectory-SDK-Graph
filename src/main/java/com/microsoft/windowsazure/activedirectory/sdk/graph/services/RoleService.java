@@ -3,7 +3,8 @@ package com.microsoft.windowsazure.activedirectory.sdk.graph.services;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import com.microsoft.azure.activedirectory.sampleapp.config.SampleConfig;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.config.SdkConfig;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.config.TenantConfiguration;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.http.RestClient;
 
 /**
@@ -13,9 +14,11 @@ import com.microsoft.windowsazure.activedirectory.sdk.graph.http.RestClient;
  */
 public class RoleService {
 	
-	public static RestClient restClient = new RestClient(SampleConfig.PROTOCOL_NAME, 
-														 SampleConfig.getRestServiceHost(),
-														 SampleConfig.getTenantContextId());
+	private static final TenantConfiguration TENANTCONFIG = TenantConfiguration.getInstance();
+
+	public static RestClient restClient = new RestClient(SdkConfig.PROTOCOL_NAME, 
+														 SdkConfig.restServiceHost,
+														 TENANTCONFIG.getTenantContextId());
 	
 	private static Logger logger;
 	static{ 

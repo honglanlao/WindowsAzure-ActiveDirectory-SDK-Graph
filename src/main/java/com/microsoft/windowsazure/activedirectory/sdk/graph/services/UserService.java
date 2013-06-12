@@ -10,8 +10,9 @@ import org.apache.log4j.PropertyConfigurator;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.microsoft.azure.activedirectory.sampleapp.config.SampleConfig;
-import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SampleAppException;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.config.SdkConfig;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.config.TenantConfiguration;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SdkException;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.helper.JSONHelper;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.http.RestClient;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.models.Role;
@@ -26,9 +27,11 @@ import com.microsoft.windowsazure.activedirectory.sdk.graph.models.UserList;
  */
 public class UserService {
 	
-	public static RestClient restClient = new RestClient(SampleConfig.PROTOCOL_NAME, 
-														 SampleConfig.getRestServiceHost(),
-														 SampleConfig.getTenantContextId());
+	private static final TenantConfiguration TENANTCONFIG = TenantConfiguration.getInstance();
+	
+	private static RestClient restClient = new RestClient(SdkConfig.PROTOCOL_NAME, 
+														 SdkConfig.restServiceHost,
+														 TENANTCONFIG.getTenantContextId());
 	private static Logger logger;
 	
 	static{
@@ -40,17 +43,17 @@ public class UserService {
 	 * This method gets an user thumbnail identified by its user objectId.
 	 * @param objectId objectId of the user to be retrieved.
 	 * @return An byteArray for the image
-	 * @throws SampleAppException 
+	 * @throws SdkException 
 	 * @throws IOException 
 	 */
-	public static byte[] getThumbnail(String objectId) throws SampleAppException, IOException {
+	public static byte[] getThumbnail(String objectId) throws SdkException, IOException {
 		String path = String.format("/%s/thumbnailPhoto", objectId);
 
 		byte[] image = restClient.GET("/users" + path, null);
 		return image;
 	}
 	
-	public static RoleList getRolesForUser(String objectId)  throws SampleAppException {
+	public static RoleList getRolesForUser(String objectId)  throws SdkException {
 		String paramStr = String.format("/%s/memberOf", objectId);
 ;		JSONObject response = restClient.GET("/users" + paramStr, null, null);
 
@@ -77,11 +80,11 @@ public class UserService {
 	 * @param opName The operator name that would be applied to the attribute.
 	 * @param searchString The string that would be searched for this attribute.
 	 * @return A page of users satisfying this query criteria.
-	 * @throws SampleAppException If the operation can not be carried out successfully.
+	 * @throws SdkException If the operation can not be carried out successfully.
 	 */
 	public static UserList queryUsers(String attributeName, 
 									  String opName, 
-									  String searchString) throws SampleAppException {
+									  String searchString) throws SdkException {
 
 		// This object would hold all the user information. 
 		UserList thisPage = new UserList();
@@ -95,7 +98,7 @@ public class UserService {
 				
 				// If any of the agruments are empty or null, throw an exception. In the ideal case,
 				// this case should never happen since this case should be taken care of in the client side. 	
-				throw new SampleAppException(SampleConfig.internalError, SampleConfig.internalErrorMessage, null);
+				throw new SdkException(SdkConfig.internalError, SdkConfig.internalErrorMessage, null);
 		}
 		
 		// Build the paramString.
@@ -133,9 +136,9 @@ public class UserService {
 	/**
 	 * @param upn
 	 * @return
-	 * @throws SampleAppException
+	 * @throws SdkException
 	 */
-	public static String getObjectIdByUpn(String upn) throws SampleAppException{
+	public static String getObjectIdByUpn(String upn) throws SdkException{
 		
 		String paramString = String.format("/%s/", upn);
 
@@ -149,9 +152,9 @@ public class UserService {
 	/**
 	 * @param objectId
 	 * @return
-	 * @throws SampleAppException
+	 * @throws SdkException
 	 */
-	public static UserList getDirectReportsByObjectId(String objectId) throws SampleAppException {
+	public static UserList getDirectReportsByObjectId(String objectId) throws SdkException {
 		
 		String paramStr = String.format("/%s/directReports", objectId);
 		JSONObject response = restClient.GET("/users" + paramStr, null, null);
@@ -175,9 +178,9 @@ public class UserService {
 	/**
 	 * @param objectId
 	 * @return
-	 * @throws SampleAppException
+	 * @throws SdkException
 	 */
-	public static User getManagerByObjectId(String objectId) throws SampleAppException {
+	public static User getManagerByObjectId(String objectId) throws SdkException {
 		
 		String paramStr = String.format("/%s/manager", objectId);
 		JSONObject response = restClient.GET("/users" + paramStr, null, null);

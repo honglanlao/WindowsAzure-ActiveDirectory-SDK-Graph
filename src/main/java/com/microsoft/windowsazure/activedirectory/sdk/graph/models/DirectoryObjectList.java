@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SampleAppException;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SdkException;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.helper.JSONHelper;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.metadata.DirectoryObject;
 
@@ -41,7 +41,7 @@ public class DirectoryObjectList<S extends DirectoryObject> {
 			S directoryObject = null;
 			try {
 				JSONHelper.convertJSONObjectToDirectoryObject(array.optJSONObject(i), directoryObject);
-			} catch (SampleAppException e) {
+			} catch (SdkException e) {
 				e.printStackTrace();
 			}
 			directoryObjectList.add(directoryObject);

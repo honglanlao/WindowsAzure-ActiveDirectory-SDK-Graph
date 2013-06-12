@@ -2,8 +2,8 @@ package com.microsoft.windowsazure.activedirectory.sdk.graph.token;
 
 import java.io.UnsupportedEncodingException;
 
-import com.microsoft.azure.activedirectory.sampleapp.config.SampleConfig;
-import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SampleAppException;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.config.SdkConfig;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SdkException;
 
 //import com.sun.org.apache.xml.internal.security.utils.Base64;
 import org.apache.commons.codec.binary.Base64;
@@ -42,13 +42,13 @@ public class Base64Utils {
 	 * url safe base64 encoded String.
 	 * @param arg The Input String.
 	 * @return A url safe base64 encoded string.
-	 * @throws SampleAppException If the String can not be encoded by the encoding specified.
+	 * @throws SdkException If the String can not be encoded by the encoding specified.
 	 */
-	public static String encode(String arg) throws SampleAppException{
+	public static String encode(String arg) throws SdkException{
 		try {
 			return Base64Utils.encode(arg.getBytes("UTF8"));
 		} catch (UnsupportedEncodingException e) {
-			throw new SampleAppException(SampleConfig.ErrorGeneratingToken, SampleConfig.ErrorGeneratingTokenMessage, e);
+			throw new SdkException(SdkConfig.ErrorGeneratingToken, SdkConfig.ErrorGeneratingTokenMessage, e);
 		}
 	}
 
