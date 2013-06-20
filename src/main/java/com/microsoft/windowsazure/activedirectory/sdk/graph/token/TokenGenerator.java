@@ -1,10 +1,7 @@
 package com.microsoft.windowsazure.activedirectory.sdk.graph.token;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import org.apache.log4j.Logger;
 
-import com.microsoft.windowsazure.activedirectory.sdk.graph.config.SdkConfig;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SdkException;
 
 

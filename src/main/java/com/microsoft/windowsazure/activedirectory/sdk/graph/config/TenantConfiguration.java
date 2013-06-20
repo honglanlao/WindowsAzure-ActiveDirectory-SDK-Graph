@@ -36,7 +36,7 @@ import com.microsoft.windowsazure.activedirectory.sdk.graph.token.TokenGenerator
 
 public class TenantConfiguration {
 	private static TenantConfiguration instance = null;
-	private Properties properties;
+	private static Properties properties;
 	private static String accessToken = null;
 
 	public static TenantConfiguration getInstance() {
@@ -69,10 +69,10 @@ public class TenantConfiguration {
 			String token = "";
 			try {
 				token = TokenGenerator.GetTokenFromUrl(SdkConfig.acsUrl,
-						config.getTenantDomainName(),
-						config.getAppPrincipalId(), 
+						TenantConfiguration.getTenantDomainName(),
+						TenantConfiguration.getAppPrincipalId(), 
 						"https://" + SdkConfig.protectedResourceHostName,
-						config.getPassword());
+						TenantConfiguration.getPassword());
 			} catch (SdkException e) {
 				e.getCause().printStackTrace();
 				System.exit(1);
@@ -87,35 +87,35 @@ public class TenantConfiguration {
 	}
 
 	private TenantConfiguration(Properties properties) {
-		this.properties = properties;
+		TenantConfiguration.properties = properties;
 	}
 
-	public String getTenantContextId() {
-		return this.properties.getProperty("tenant.TenantContextId");
+	public static String getTenantContextId() {
+		return TenantConfiguration.properties.getProperty("tenant.TenantContextId");
 	}
 
-	public String getTenantDomainName() {
-		return this.properties.getProperty("tenant.TenantDomainName");
+	public static String getTenantDomainName() {
+		return TenantConfiguration.properties.getProperty("tenant.TenantDomainName");
 	}
 
-	public String getSymmetricKey() {
-		return this.properties.getProperty("tenant.SymmetricKey");
+	public static String getSymmetricKey() {
+		return TenantConfiguration.properties.getProperty("tenant.SymmetricKey");
 	}
 
-	public String getPassword() {
-		return this.properties.getProperty("tenant.Password");
+	public static String getPassword() {
+		return TenantConfiguration.properties.getProperty("tenant.Password");
 	}
 
-	public String getAcsPrincipalId() {
-		return this.properties.getProperty("tenant.AcsPrincipalId");
+	public static String getAcsPrincipalId() {
+		return TenantConfiguration.properties.getProperty("tenant.AcsPrincipalId");
 	}
 
-	public String getAppPrincipalId() {
-		return this.properties.getProperty("tenant.AppPrincipalId");
+	public static String getAppPrincipalId() {
+		return TenantConfiguration.properties.getProperty("tenant.AppPrincipalId");
 	}
 
-	public String getProtectedResourcePrincipalId() {
-		return this.properties
+	public static String getProtectedResourcePrincipalId() {
+		return TenantConfiguration.properties
 				.getProperty("tenant.ProtectedResourcePrincipalId");
 	}
 	// public String getReply() {
