@@ -20,11 +20,11 @@ import com.microsoft.windowsazure.activedirectory.sdk.graph.models.UserList;
  */
 public class GroupService {
 
-	private static final TenantConfiguration TENANTCONFIG = TenantConfiguration.getInstance();
+//	private static final TenantConfiguration TENANTCONFIG = TenantConfiguration.getInstance();
 
 	public static RestClient restClient = new RestClient(SdkConfig.PROTOCOL_NAME, 
 														 SdkConfig.restServiceHost,
-														 TENANTCONFIG.getTenantContextId());
+														 TenantConfiguration.getTenantContextId());
 
 	/**
 	 * @param objectId

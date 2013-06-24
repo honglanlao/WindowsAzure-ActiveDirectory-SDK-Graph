@@ -52,26 +52,27 @@ public class TenantConfiguration {
 		Properties props = new Properties();
 
 		try {
-			InputStream is = TenantConfiguration.class
-					.getResourceAsStream("/tenant.properties");
+			InputStream is = TenantConfiguration.class.getResourceAsStream("/tenant.properties");
+			System.out.println("is ->" + is);
 			props.load(is);
 		} catch (IOException e) {
 			throw new RuntimeException("Configuration could not be loaded", e);
+		} catch (Exception e2){
+			throw new RuntimeException("Another exception", e2);
 		}
 
 		return new TenantConfiguration(props);
 	}
 
 	public static String getAccessToken() {
-		TenantConfiguration config = TenantConfiguration.getInstance();
 		if (accessToken == null) {
 
 			String token = "";
 			try {
 				token = TokenGenerator.GetTokenFromUrl(SdkConfig.acsUrl,
-						TenantConfiguration.getTenantDomainName(),
+						TenantConfiguration.getTenantContextId(),
 						TenantConfiguration.getAppPrincipalId(), 
-						"https://" + SdkConfig.protectedResourceHostName,
+						SdkConfig.PROTOCOL_NAME + SdkConfig.protectedResourceHostName,
 						TenantConfiguration.getPassword());
 			} catch (SdkException e) {
 				e.getCause().printStackTrace();
@@ -117,6 +118,11 @@ public class TenantConfiguration {
 	public static String getProtectedResourcePrincipalId() {
 		return TenantConfiguration.properties
 				.getProperty("tenant.ProtectedResourcePrincipalId");
+	}
+	
+	public static String getStsFriendlyName() {
+		return TenantConfiguration.properties
+				.getProperty("tenant.friendlyname");
 	}
 	// public String getReply() {
 	// return this.properties.getProperty("federation.reply");

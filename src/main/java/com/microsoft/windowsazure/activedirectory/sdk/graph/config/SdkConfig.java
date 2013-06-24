@@ -7,7 +7,7 @@ import org.json.JSONObject;
 /**
  * The class SdkConfig holds the important parameters for this application.
  * The parameters are read in from the web.xml configuration file in the
- * {@link com.microsoft.azure.activedirectory.sampleapp.controllers.GroupServlet#init() init} method. These parameters 
+ * {@link com.microsoft.windowsazure.activedirectory.sample.controllers.GroupServlet#init() init} method. These parameters 
  * are used throughout the application.
  * @author Azure Active Directory Contributor
  */

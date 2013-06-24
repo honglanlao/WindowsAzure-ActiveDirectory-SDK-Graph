@@ -27,15 +27,15 @@ import com.microsoft.windowsazure.activedirectory.sdk.graph.models.UserList;
  */
 public class UserService {
 	
-	private static final TenantConfiguration TENANTCONFIG = TenantConfiguration.getInstance();
+//	private static final TenantConfiguration TENANTCONFIG = TenantConfiguration.getInstance();
 	
 	private static RestClient restClient = new RestClient(SdkConfig.PROTOCOL_NAME, 
 														 SdkConfig.restServiceHost,
-														 TENANTCONFIG.getTenantContextId());
+														 TenantConfiguration.getTenantContextId());
 	private static Logger logger;
 	
 	static{
-		logger = Logger.getLogger(CommonService.class);	
+		logger = Logger.getLogger(UserService.class);	
 	//	PropertyConfigurator.configure("log4j.properties");
 	}
 	

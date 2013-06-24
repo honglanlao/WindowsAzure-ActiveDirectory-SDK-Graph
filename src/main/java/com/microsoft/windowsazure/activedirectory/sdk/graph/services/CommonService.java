@@ -6,7 +6,6 @@ import java.lang.reflect.InvocationTargetException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,11 +27,11 @@ import com.microsoft.windowsazure.activedirectory.sdk.graph.models.DirectoryObje
  */
 public class CommonService {
 	
-	private static final TenantConfiguration TENANTCONFIG = TenantConfiguration.getInstance();
+//	private static final TenantConfiguration TENANTCONFIG = TenantConfiguration.getInstance();
 
 	public static RestClient restClient = new RestClient(SdkConfig.PROTOCOL_NAME, 
 														 SdkConfig.restServiceHost,
-														 TENANTCONFIG.getTenantContextId());
+														 TenantConfiguration.getTenantContextId());
 
 	private static Logger logger = Logger.getLogger(CommonService.class);;	
 	static{ 
@@ -172,7 +171,7 @@ public class CommonService {
 	public static JSONObject addDirectoryObjectToMemberOf(String directoryObjectObjectIds, String memberOfObjectId, String controller) throws SdkException {
 
 		String directoryObject = String.format("%s://%s/%s/directoryObjects/%s", 
-				SdkConfig.PROTOCOL_NAME, SdkConfig.restServiceHost, TENANTCONFIG.getTenantContextId(), directoryObjectObjectIds);
+				SdkConfig.PROTOCOL_NAME, SdkConfig.restServiceHost, TenantConfiguration.getTenantContextId(), directoryObjectObjectIds);
 		
 		String payLoad = JSONHelper.createJSONString("url", directoryObject);
 		String paramString = String.format("/%s/$links/members", memberOfObjectId);
