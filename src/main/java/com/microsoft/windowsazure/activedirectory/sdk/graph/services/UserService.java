@@ -28,10 +28,15 @@ import com.microsoft.windowsazure.activedirectory.sdk.graph.models.UserList;
 public class UserService {
 	
 //	private static final TenantConfiguration TENANTCONFIG = TenantConfiguration.getInstance();
+	private TenantConfiguration tenant;
+	private RestClient restClient; 
+	public UserService(TenantConfiguration tenant){
+		this.tenant = tenant;
+		restClient = new RestClient(SdkConfig.PROTOCOL_NAME, 
+				 SdkConfig.restServiceHost,
+				 this.tenant.getTenantContextId());
+	}
 	
-	private static RestClient restClient = new RestClient(SdkConfig.PROTOCOL_NAME, 
-														 SdkConfig.restServiceHost,
-														 TenantConfiguration.getTenantContextId());
 	private static Logger logger;
 	
 	static{
@@ -46,16 +51,16 @@ public class UserService {
 	 * @throws SdkException 
 	 * @throws IOException 
 	 */
-	public static byte[] getThumbnail(String objectId) throws SdkException, IOException {
+	public byte[] getThumbnail(String objectId) throws SdkException, IOException {
 		String path = String.format("/%s/thumbnailPhoto", objectId);
 
-		byte[] image = restClient.GET("/users" + path, null);
+		byte[] image = this.restClient.GET("/users" + path, null, this.tenant.getAccessToken());
 		return image;
 	}
 	
-	public static RoleList getRolesForUser(String objectId)  throws SdkException {
+	public RoleList getRolesForUser(String objectId)  throws SdkException {
 		String paramStr = String.format("/%s/memberOf", objectId);
-;		JSONObject response = restClient.GET("/users" + paramStr, null, null);
+;		JSONObject response = this.restClient.GET("/users" + paramStr, null, null, this.tenant.getAccessToken());
 
 		JSONArray memberArray = JSONHelper.fetchDirectoryObjectJSONArray(response);
 
@@ -82,7 +87,7 @@ public class UserService {
 	 * @return A page of users satisfying this query criteria.
 	 * @throws SdkException If the operation can not be carried out successfully.
 	 */
-	public static UserList queryUsers(String attributeName, 
+	public UserList queryUsers(String attributeName, 
 									  String opName, 
 									  String searchString) throws SdkException {
 
@@ -116,7 +121,7 @@ public class UserService {
 		// Send the query with the built queryOption.
 		JSONObject response = new JSONObject();
 		
-		response = restClient.GET("/users", paramString, null);
+		response = this.restClient.GET("/users", paramString, null, this.tenant.getAccessToken());
 		logger.info("response -> " + response);
 		JSONArray users = new JSONArray();
 	
@@ -138,11 +143,11 @@ public class UserService {
 	 * @return
 	 * @throws SdkException
 	 */
-	public static String getObjectIdByUpn(String upn) throws SdkException{
+	public String getObjectIdByUpn(String upn) throws SdkException{
 		
 		String paramString = String.format("/%s/", upn);
 
-		JSONObject response = restClient.GET("/users" + paramString, null, null);
+		JSONObject response = this.restClient.GET("/users" + paramString, null, null, this.tenant.getAccessToken());
 		logger.info("getobjectid from upn response ->" + response);
 		JSONObject directoryObjectJSON = response.optJSONObject("responseMsg");
 		
@@ -154,10 +159,10 @@ public class UserService {
 	 * @return
 	 * @throws SdkException
 	 */
-	public static UserList getDirectReportsByObjectId(String objectId) throws SdkException {
+	public UserList getDirectReportsByObjectId(String objectId) throws SdkException {
 		
 		String paramStr = String.format("/%s/directReports", objectId);
-		JSONObject response = restClient.GET("/users" + paramStr, null, null);
+		JSONObject response = this.restClient.GET("/users" + paramStr, null, null, this.tenant.getAccessToken());
 		logger.info("response ->" + response);
 		JSONArray usersJSONArray = JSONHelper.fetchDirectoryObjectJSONArray(response);
 		
@@ -180,10 +185,10 @@ public class UserService {
 	 * @return
 	 * @throws SdkException
 	 */
-	public static User getManagerByObjectId(String objectId) throws SdkException {
+	public User getManagerByObjectId(String objectId) throws SdkException {
 		
 		String paramStr = String.format("/%s/manager", objectId);
-		JSONObject response = restClient.GET("/users" + paramStr, null, null);
+		JSONObject response = restClient.GET("/users" + paramStr, null, null, this.tenant.getAccessToken());
 		logger.info("response ->" + response);
 		JSONObject userJSONObject = JSONHelper.fetchDirectoryObjectJSONObject(response);
 		

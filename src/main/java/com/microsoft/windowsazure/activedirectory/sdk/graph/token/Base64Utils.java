@@ -2,11 +2,11 @@ package com.microsoft.windowsazure.activedirectory.sdk.graph.token;
 
 import java.io.UnsupportedEncodingException;
 
+import org.apache.commons.codec.binary.Base64;
+
 import com.microsoft.windowsazure.activedirectory.sdk.graph.config.SdkConfig;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SdkException;
-
 //import com.sun.org.apache.xml.internal.security.utils.Base64;
-import org.apache.commons.codec.binary.Base64;
 
 
 /**

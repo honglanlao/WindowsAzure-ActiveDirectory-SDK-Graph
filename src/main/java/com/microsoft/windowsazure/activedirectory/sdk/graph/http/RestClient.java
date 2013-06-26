@@ -27,6 +27,7 @@ public class RestClient implements WsHttpHandler {
 	private String protocol;
 	private String endPoint;
 	private String TenantContextId;
+	
 	private Logger logger  = Logger.getLogger(RestClient.class);
 //	private static final SdkConfig CONFIG = SdkConfig.getInstance();
 
@@ -40,7 +41,7 @@ public class RestClient implements WsHttpHandler {
 
 	}
 	
-	public byte[] GET(String controller, String paramStr) throws SdkException {
+	public byte[] GET(String controller, String paramStr, String token) throws SdkException {
 		
 		HttpURLConnection conn = null;
 		JSONObject response = new JSONObject();	
@@ -64,7 +65,7 @@ public class RestClient implements WsHttpHandler {
 
 			// Set the appropriate header fields in the request header.  below should be in property field of this class
 			conn.setRequestProperty(SdkConfig.APIVERSION_HEADER, SdkConfig.apiVersion);
-			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, TenantConfiguration.getAccessToken());
+			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, token);
 			conn.setRequestProperty(SdkConfig.ACCEPT_HEADER, "*/*");
 			conn.setRequestProperty(SdkConfig.ACCEPT_HEADER, SdkConfig.ACCEPT_HEADER_VALUE);
 
@@ -92,7 +93,7 @@ public class RestClient implements WsHttpHandler {
 		}	
 	}
 	
-	public JSONObject GET(String controller, String paramStr, String fragment) throws SdkException {
+	public JSONObject GET(String controller, String paramStr, String fragment, String token) throws SdkException {
 
 		HttpURLConnection conn = null;
 		JSONObject response = new JSONObject();
@@ -117,7 +118,7 @@ public class RestClient implements WsHttpHandler {
 
 			// Set the appropriate header fields in the request header.
 			conn.setRequestProperty(SdkConfig.APIVERSION_HEADER, SdkConfig.apiVersion);
-			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, TenantConfiguration.getAccessToken());
+			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, token);
 			conn.setRequestProperty(SdkConfig.ACCEPT_HEADER, SdkConfig.ACCEPT_HEADER_VALUE);
 			
 			String goodRespStr = HttpClientHelper.getResponseStringFromConn(conn, true);
@@ -158,7 +159,7 @@ public class RestClient implements WsHttpHandler {
 	 * @return response JSONObject
 	 * @throws SdkException 
 	 */
-	public JSONObject POST(String controller, String paramStr, String payLoad, String action, String fragment) throws SdkException{
+	public JSONObject POST(String controller, String paramStr, String payLoad, String action, String fragment, String token) throws SdkException{
 
 		URI uri = null;
 		URL url = null;
@@ -193,7 +194,7 @@ public class RestClient implements WsHttpHandler {
 					
 			// Set the appropriate request header fields.
 		//	conn.setRequestProperty(SdkConfig.APIVERSION_HEADER, SdkConfig.getApiVersion());
-			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, TenantConfiguration.getAccessToken());
+			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, token);
 			conn.setRequestProperty(SdkConfig.ACCEPT_HEADER, SdkConfig.ACCEPT_HEADER_VALUE);	
 			conn.setRequestProperty(SdkConfig.CONTENTTYPE_HEADER, SdkConfig.CONTENTTYPE_HEADER_VALUE);
 			
@@ -233,7 +234,7 @@ public class RestClient implements WsHttpHandler {
 	}
 	
 	
-	public JSONObject PATCH(String controller, String paramStr, String payLoad, String action, String fragment) throws SdkException{
+	public JSONObject PATCH(String controller, String paramStr, String payLoad, String action, String fragment, String token) throws SdkException{
 
 		URI uri = null;
 		URL url = null;
@@ -259,7 +260,7 @@ public class RestClient implements WsHttpHandler {
 					
 			// Set the appropriate request header fields.
 		//	conn.setRequestProperty(SdkConfig.APIVERSION_HEADER, SdkConfig.getApiVersion());
-			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, TenantConfiguration.getAccessToken());
+			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, token);
 			conn.setRequestProperty(SdkConfig.ACCEPT_HEADER, SdkConfig.ACCEPT_HEADER_VALUE);	
 			conn.setRequestProperty(SdkConfig.CONTENTTYPE_HEADER, SdkConfig.CONTENTTYPE_HEADER_VALUE);
 
@@ -292,7 +293,7 @@ public class RestClient implements WsHttpHandler {
 	
 	
 	
-	public JSONObject DELETE(String controller, String paramStr, String payLoad, String action, String fragment) throws SdkException{
+	public JSONObject DELETE(String controller, String paramStr, String payLoad, String action, String fragment, String token) throws SdkException{
 		
 		URL url = null;
 		HttpURLConnection conn = null;
@@ -317,7 +318,7 @@ public class RestClient implements WsHttpHandler {
 			conn.setRequestMethod("DELETE");
 			// Set the appropriate request header fields.
 		//	conn.setRequestProperty(SdkConfig.APIVERSION_HEADER, SdkConfig.getApiVersion());
-			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, TenantConfiguration.getAccessToken());
+			conn.setRequestProperty(SdkConfig.AUTHORIZATION_HEADER, token);
 			conn.setRequestProperty(SdkConfig.CONTENTTYPE_HEADER, SdkConfig.CONTENTTYPE_HEADER_VALUE);
 
 			conn.setRequestProperty(SdkConfig.ACCEPT_HEADER, SdkConfig.ACCEPT_HEADER_VALUE);

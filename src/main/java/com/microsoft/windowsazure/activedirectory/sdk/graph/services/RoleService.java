@@ -15,10 +15,14 @@ import com.microsoft.windowsazure.activedirectory.sdk.graph.http.RestClient;
 public class RoleService {
 	
 //	private static final TenantConfiguration TENANTCONFIG = TenantConfiguration.getInstance();
-
-	public static RestClient restClient = new RestClient(SdkConfig.PROTOCOL_NAME, 
-														 SdkConfig.restServiceHost,
-														 TenantConfiguration.getTenantContextId());
+	private TenantConfiguration tenant;
+	private RestClient restClient;
+	public RoleService(TenantConfiguration tenant){
+		this.tenant = tenant;
+		restClient = new RestClient(SdkConfig.PROTOCOL_NAME, 
+				 SdkConfig.restServiceHost,
+				 this.tenant.getTenantContextId());
+	}
 	
 	private static Logger logger;
 	static{ 

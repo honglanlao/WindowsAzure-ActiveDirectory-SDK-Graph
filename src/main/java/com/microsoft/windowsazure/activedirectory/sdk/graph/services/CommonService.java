@@ -28,11 +28,16 @@ import com.microsoft.windowsazure.activedirectory.sdk.graph.models.DirectoryObje
 public class CommonService {
 	
 //	private static final TenantConfiguration TENANTCONFIG = TenantConfiguration.getInstance();
-
-	public static RestClient restClient = new RestClient(SdkConfig.PROTOCOL_NAME, 
-														 SdkConfig.restServiceHost,
-														 TenantConfiguration.getTenantContextId());
-
+	private TenantConfiguration tenant;
+	public RestClient restClient;
+	public CommonService(TenantConfiguration config){
+		this.tenant = config;
+		System.out.println("tenant context id ->" + config.getTenantContextId());
+		restClient = new RestClient(SdkConfig.PROTOCOL_NAME, 
+				 SdkConfig.restServiceHost,
+				 config.getTenantContextId());
+	}
+	
 	private static Logger logger = Logger.getLogger(CommonService.class);;	
 	static{ 
 	//	PropertyConfigurator.configure("log4j.properties");
@@ -49,7 +54,7 @@ public class CommonService {
 	 * @return
 	 * @throws SdkException
 	 */
-	 public static <T extends DirectoryObjectList<? extends DirectoryObject>, S> T getDirectoryObjectList(Class<T> listType, Class<?> elementType, boolean paging, String skiptoken) throws SdkException{
+	 public <T extends DirectoryObjectList<? extends DirectoryObject>, S> T getDirectoryObjectList(Class<T> listType, Class<?> elementType, boolean paging, String skiptoken) throws SdkException{
 		
 		String paramString = null;
 		if(paging == true){
@@ -59,7 +64,8 @@ public class CommonService {
 				paramString = String.format("$top=%d&$skiptoken=%s", SdkConfig.userSizePerList, skiptoken);
 			}
 		}
-		JSONObject response = restClient.GET(SdkConfig.getGraphAPI(elementType.getSimpleName()), paramString, null);
+		System.out.println("token ->" + this.tenant.getAccessToken());
+		JSONObject response = this.restClient.GET(SdkConfig.getGraphAPI(elementType.getSimpleName()), paramString, null, this.tenant.getAccessToken());
 		logger.info("response in getDirectoryObjectList ->" + response);
 		// Create a new DirectoryObjectList 
 		T thisList = null;
@@ -101,12 +107,12 @@ public class CommonService {
 	 * @return An user object populated with the relevant attributes.
 	 * @throws SdkException 
 	 */
-	public static <S extends DirectoryObject> S getSingleDirectoryObject(Class<S> elementType, String objectId) throws SdkException{
+	public <S extends DirectoryObject> S getSingleDirectoryObject(Class<S> elementType, String objectId) throws SdkException{
 				
 		// Construct param
 		String paramString = String.format("/%s", objectId);
 
-		JSONObject response = restClient.GET(SdkConfig.getGraphAPI(elementType.getSimpleName()) + paramString, null, null);
+		JSONObject response = this.restClient.GET(SdkConfig.getGraphAPI(elementType.getSimpleName()) + paramString, null, null, this.tenant.getAccessToken());
 		JSONObject directoryObjectJSON = response.optJSONObject("responseMsg");
 		
 		// Creates a new DirectoryObject
@@ -128,35 +134,35 @@ public class CommonService {
 	 * @return 
 	 * @throws SdkException if the operation can not be successfully created.
 	 */
-	public static JSONObject createDirectoryObject(HttpServletRequest request, String controller) throws SdkException{		
+	public JSONObject createDirectoryObject(HttpServletRequest request, String controller) throws SdkException{		
 
 		// Send the http POST request to the appropriate url and
 		// using an appropriate message body.
 		String payLoad = JSONHelper.createJSONString(request, controller);
 		String paramString = null;
 		// POST(controller, queryParam, payLoad, action, fragment)
-		JSONObject response = restClient.POST(SdkConfig.getGraphAPI(controller), paramString, payLoad, "create" + controller, null);
+		JSONObject response = this.restClient.POST(SdkConfig.getGraphAPI(controller), paramString, payLoad, "create" + controller, null, this.tenant.getAccessToken());
 		return response;
 	}
 	
-	public static JSONObject deleteDirectoryObject(HttpServletRequest request, String controller) throws SdkException{		
+	public JSONObject deleteDirectoryObject(HttpServletRequest request, String controller) throws SdkException{		
 
 		// Send the http DELETE request to the appropriate url and
 		// using an appropriate message body.
 		String payLoad = "{}";
 		String paramString = String.format("/%s", request.getParameter("objectId"));
 		
-		JSONObject response = restClient.DELETE(SdkConfig.getGraphAPI(controller), paramString, payLoad, "delete" + controller, null);
+		JSONObject response = this.restClient.DELETE(SdkConfig.getGraphAPI(controller), paramString, payLoad, "delete" + controller, null, this.tenant.getAccessToken());
 		return response;
 	}
 	
-	public static JSONObject updateDirectoryObject(String objectId, HttpServletRequest request, String controller) throws SdkException{		
+	public JSONObject updateDirectoryObject(String objectId, HttpServletRequest request, String controller) throws SdkException{		
 
 		// construct 
 		String payLoad = JSONHelper.createJSONString(request, controller);
 		String paramString = String.format("/%s", objectId);		 
 		
-		JSONObject response = restClient.PATCH(SdkConfig.getGraphAPI(controller), paramString, payLoad, "update" + controller, null);
+		JSONObject response = this.restClient.PATCH(SdkConfig.getGraphAPI(controller), paramString, payLoad, "update" + controller, null, this.tenant.getAccessToken());
 		return response;
 	}
 
@@ -168,14 +174,14 @@ public class CommonService {
 	 * @throws SdkException If the operation can not be successfully carried out.
 	 * @throws JSONException 
 	 */	
-	public static JSONObject addDirectoryObjectToMemberOf(String directoryObjectObjectIds, String memberOfObjectId, String controller) throws SdkException {
+	public JSONObject addDirectoryObjectToMemberOf(String directoryObjectObjectIds, String memberOfObjectId, String controller) throws SdkException {
 
 		String directoryObject = String.format("%s://%s/%s/directoryObjects/%s", 
-				SdkConfig.PROTOCOL_NAME, SdkConfig.restServiceHost, TenantConfiguration.getTenantContextId(), directoryObjectObjectIds);
+				SdkConfig.PROTOCOL_NAME, SdkConfig.restServiceHost, this.tenant.getTenantContextId(), directoryObjectObjectIds);
 		
 		String payLoad = JSONHelper.createJSONString("url", directoryObject);
 		String paramString = String.format("/%s/$links/members", memberOfObjectId);
-		JSONObject response = restClient.POST(SdkConfig.getGraphAPI(controller), paramString, payLoad, "addUserToMemberOf", null);
+		JSONObject response = this.restClient.POST(SdkConfig.getGraphAPI(controller), paramString, payLoad, "addUserToMemberOf", null, this.tenant.getAccessToken());
 		return response; 
 	}
 	
@@ -187,7 +193,7 @@ public class CommonService {
 	 * @return
 	 * @throws SdkException
 	 */
-	public static JSONArray addDirectoryObjectsToMemberOf(String[] directoryObjectObjectIds, String memberOfObjectId , String controller) throws SdkException {
+	public JSONArray addDirectoryObjectsToMemberOf(String[] directoryObjectObjectIds, String memberOfObjectId , String controller) throws SdkException {
 		
 		JSONArray array = new JSONArray();
 		if(directoryObjectObjectIds == null) return array;
@@ -202,7 +208,7 @@ public class CommonService {
 	}
 	
 	
-	public static JSONArray addDirectoryObjectsToMemberOf( String directoryObjectObjectId, String[] memberOfObjectId, String controller) throws SdkException {
+	public JSONArray addDirectoryObjectsToMemberOf( String directoryObjectObjectId, String[] memberOfObjectId, String controller) throws SdkException {
 		
 		JSONArray array = new JSONArray();
 		if(memberOfObjectId == null) return array;
@@ -225,11 +231,11 @@ public class CommonService {
 	 * @param controller Whether user to be removed from a group or a role.
 	 * @throws SdkException If the operation can not be successfully carried out.
 	 */	
-	public static JSONObject removeDirectoryObjectFromMemberOf(String directoryObjectObjectId, String memberOfObjectId , String controller) throws SdkException {
+	public JSONObject removeDirectoryObjectFromMemberOf(String directoryObjectObjectId, String memberOfObjectId , String controller) throws SdkException {
 
 		String paramString = String.format("/%s/$links/members/%s", memberOfObjectId, directoryObjectObjectId);
 		String payLoad = "";
-		JSONObject response = restClient.DELETE(SdkConfig.getGraphAPI(controller), paramString, payLoad, "removeUserFromMemberOf", null);
+		JSONObject response = this.restClient.DELETE(SdkConfig.getGraphAPI(controller), paramString, payLoad, "removeUserFromMemberOf", null, this.tenant.getAccessToken());
 		return response; 
 	}
 	
@@ -241,7 +247,7 @@ public class CommonService {
 	 * @return
 	 * @throws SdkException
 	 */
-	public static JSONArray removeDirectoryObjectsFromMemberOf(String[]  directoryObjectObjectIds, String memberOfObjectId , String controller) throws SdkException {
+	public JSONArray removeDirectoryObjectsFromMemberOf(String[]  directoryObjectObjectIds, String memberOfObjectId , String controller) throws SdkException {
 
 		JSONArray array = new JSONArray();
 		if(directoryObjectObjectIds == null) return array;
@@ -253,7 +259,7 @@ public class CommonService {
 		return array; 
 	}
 	
-	public static JSONArray removeDirectoryObjectsFromMemberOf( String directoryObjectObjectIDs, String[] memberOfObjectId, String controller) throws SdkException {
+	public JSONArray removeDirectoryObjectsFromMemberOf( String directoryObjectObjectIDs, String[] memberOfObjectId, String controller) throws SdkException {
 
 		JSONArray array = new JSONArray();
 		if(memberOfObjectId == null) return array;
@@ -265,11 +271,11 @@ public class CommonService {
 		return array; 
 	}
 	
-	public static boolean isMemberOf( String objectId, String memberOfName) throws SdkException {
+	public boolean isMemberOf( String objectId, String memberOfName) throws SdkException {
 		
 		String paramStr = String.format("/%s/memberOf", objectId);
 
-		JSONObject response = restClient.GET("/users" + paramStr, null, null);
+		JSONObject response = this.restClient.GET("/users" + paramStr, null, null, this.tenant.getAccessToken());
 		logger.info("in isMemberOf ->" + response);
 		JSONArray directoryObjectJSONArr = JSONHelper.fetchDirectoryObjectJSONArray(response);
 		for(int i = 0; i < directoryObjectJSONArr.length(); i ++){
@@ -288,12 +294,12 @@ public class CommonService {
 	 * @param deltaLink
 	 * @return
 	 */
-	public static <T extends DirectoryObjectList<? extends DirectoryObject>, S> JSONObject getDifferentialDirectoryObjectList(Class<T> listType, Class<?> elementType, String deltaLink) throws SdkException{
+	public <T extends DirectoryObjectList<? extends DirectoryObject>, S> JSONObject getDifferentialDirectoryObjectList(Class<T> listType, Class<?> elementType, String deltaLink) throws SdkException{
 		
 		
 		String paramStr = String.format("deltaLink=%s", deltaLink);
 		
-		JSONObject response = restClient.GET(SdkConfig.getGraphAPI(elementType.getSimpleName()), paramStr, null);
+		JSONObject response = this.restClient.GET(SdkConfig.getGraphAPI(elementType.getSimpleName()), paramStr, null, this.tenant.getAccessToken());
 		logger.info("response in getDifferentialDirectoryObjectList ->" + response);
 		// Create a new DirectoryObjectList 
 		return response;

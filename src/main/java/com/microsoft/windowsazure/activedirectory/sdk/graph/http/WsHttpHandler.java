@@ -18,7 +18,7 @@ public interface WsHttpHandler{
 	 * @throws	Exception
 	 * @return	response from the WebServer as JSONObject
 	 */
-	public JSONObject GET(String controller, String paramString, String fragment) throws Exception;
+	public JSONObject GET(String controller, String paramString, String fragment, String token) throws Exception;
 	
 	/**
 	 * 
@@ -30,7 +30,7 @@ public interface WsHttpHandler{
 	 * @return response from the WebServer as JSONObject
 	 * @throws Exception
 	 */
-	public JSONObject POST(String controller, String paramString, String payLoad, String action, String fragment) throws Exception;
+	public JSONObject POST(String controller, String paramString, String payLoad, String action, String fragment, String token) throws Exception;
 	
 	/**
 	 * send a request to the Web Service and get back the response
@@ -39,7 +39,7 @@ public interface WsHttpHandler{
 	 * @throws	Exception
 	 * @return	response byte array
 	 */
-	public byte[] GET(String controller, String paramString) throws Exception;
+	public byte[] GET(String controller, String paramString, String token) throws Exception;
 	
 	/**
 	 * 
@@ -51,6 +51,6 @@ public interface WsHttpHandler{
 	 * @return response from the WebServer as JSONObject
 	 * @throws Exception
 	 */
-	public JSONObject DELETE(String controller, String paramString, String payLoad, String action, String fragment) throws Exception;
+	public JSONObject DELETE(String controller, String paramString, String payLoad, String action, String fragment, String token) throws Exception;
 
 }

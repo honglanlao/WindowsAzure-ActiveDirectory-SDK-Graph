@@ -33,57 +33,62 @@ import java.util.Properties;
 
 import com.microsoft.windowsazure.activedirectory.sdk.graph.exceptions.SdkException;
 import com.microsoft.windowsazure.activedirectory.sdk.graph.token.TokenGenerator;
+import com.microsoft.windowsazure.activedirectory.sdk.graph.config.SdkConfig;
 
 public class TenantConfiguration {
 	private static TenantConfiguration instance = null;
 	private static Properties properties;
 	private static String accessToken = null;
 
-	public static TenantConfiguration getInstance() {
+	public static TenantConfiguration getInstance(String configFile) {
 		if (instance == null) {
 			synchronized (TenantConfiguration.class) {
-				instance = load();
+				instance = load(configFile);
 			}
 		}
+	
 		return instance;
 	}
 
-	private static TenantConfiguration load() {
+	private TenantConfiguration (){
+		getAccessToken();
+	}
+	private static TenantConfiguration load(String configFile) {
 		Properties props = new Properties();
 
 		try {
-			InputStream is = TenantConfiguration.class.getResourceAsStream("/tenant.properties");
+			InputStream is = TenantConfiguration.class.getResourceAsStream(configFile);
 			System.out.println("is ->" + is);
 			props.load(is);
 		} catch (IOException e) {
 			throw new RuntimeException("Configuration could not be loaded", e);
 		} catch (Exception e2){
-			throw new RuntimeException("Another exception", e2);
+			e2.printStackTrace();
 		}
 
 		return new TenantConfiguration(props);
 	}
 
-	public static String getAccessToken() {
+	public String getAccessToken() {
 		if (accessToken == null) {
 
 			String token = "";
 			try {
 				token = TokenGenerator.GetTokenFromUrl(SdkConfig.acsUrl,
-						TenantConfiguration.getTenantContextId(),
-						TenantConfiguration.getAppPrincipalId(), 
-						SdkConfig.PROTOCOL_NAME + SdkConfig.protectedResourceHostName,
-						TenantConfiguration.getPassword());
+						this.getTenantContextId(),
+						this.getAppPrincipalId(), 
+						SdkConfig.PROTOCOL_NAME + "://" + SdkConfig.protectedResourceHostName,
+						this.getPassword());
 			} catch (SdkException e) {
 				e.getCause().printStackTrace();
 				System.exit(1);
 			}
-			TenantConfiguration.setAccessToken(token);
+			this.setAccessToken(token);
 		}
 		return accessToken;
 	}
 
-	public static void setAccessToken(String token) {
+	public void setAccessToken(String token) {
 		TenantConfiguration.accessToken = token;
 	}
 
@@ -91,31 +96,31 @@ public class TenantConfiguration {
 		TenantConfiguration.properties = properties;
 	}
 
-	public static String getTenantContextId() {
+	public String getTenantContextId() {
 		return TenantConfiguration.properties.getProperty("tenant.TenantContextId");
 	}
 
-	public static String getTenantDomainName() {
+	public String getTenantDomainName() {
 		return TenantConfiguration.properties.getProperty("tenant.TenantDomainName");
 	}
 
-	public static String getSymmetricKey() {
+	public String getSymmetricKey() {
 		return TenantConfiguration.properties.getProperty("tenant.SymmetricKey");
 	}
 
-	public static String getPassword() {
+	public String getPassword() {
 		return TenantConfiguration.properties.getProperty("tenant.Password");
 	}
 
-	public static String getAcsPrincipalId() {
+	public String getAcsPrincipalId() {
 		return TenantConfiguration.properties.getProperty("tenant.AcsPrincipalId");
 	}
 
-	public static String getAppPrincipalId() {
+	public String getAppPrincipalId() {
 		return TenantConfiguration.properties.getProperty("tenant.AppPrincipalId");
 	}
 
-	public static String getProtectedResourcePrincipalId() {
+	public String getProtectedResourcePrincipalId() {
 		return TenantConfiguration.properties
 				.getProperty("tenant.ProtectedResourcePrincipalId");
 	}

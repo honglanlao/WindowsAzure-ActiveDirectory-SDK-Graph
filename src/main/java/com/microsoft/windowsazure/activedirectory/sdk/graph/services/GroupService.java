@@ -21,19 +21,23 @@ import com.microsoft.windowsazure.activedirectory.sdk.graph.models.UserList;
 public class GroupService {
 
 //	private static final TenantConfiguration TENANTCONFIG = TenantConfiguration.getInstance();
-
-	public static RestClient restClient = new RestClient(SdkConfig.PROTOCOL_NAME, 
-														 SdkConfig.restServiceHost,
-														 TenantConfiguration.getTenantContextId());
+	private TenantConfiguration tenant;
+	private RestClient restClient; 
+	public GroupService(TenantConfiguration tenant){
+		this.tenant = tenant;
+		restClient = new RestClient(SdkConfig.PROTOCOL_NAME, 
+				 SdkConfig.restServiceHost,
+				 this.tenant.getTenantContextId());
+	}
 
 	/**
 	 * @param objectId
 	 * @return
 	 * @throws SdkException
 	 */
-	public static UserList getUsersForGroup(String objectId)  throws SdkException {
+	public UserList getUsersForGroup(String objectId)  throws SdkException {
 		String paramString = String.format("/%s/members", objectId);
-		JSONObject response = restClient.GET("/groups" + paramString, null, null);
+		JSONObject response = this.restClient.GET("/groups" + paramString, null, null, this.tenant.getAccessToken());
 		
 		JSONArray memberArray = JSONHelper.fetchDirectoryObjectJSONArray(response);
 		
@@ -61,7 +65,7 @@ public class GroupService {
 	 * @return A page of groups satisfying this query criteria.
 	 * @throws SdkException If the operation can not be carried out successfully.
 	 */
-	public static GroupList queryGroups(String attributeName, 
+	public GroupList queryGroups(String attributeName, 
 									  String opName, 
 									  String searchString) throws SdkException {
 
@@ -93,7 +97,7 @@ public class GroupService {
 
 		
 		// Send the query with the built queryOption.
-		JSONObject response = restClient.GET("/groups", paramString, null);
+		JSONObject response = this.restClient.GET("/groups", paramString, null, this.tenant.getAccessToken());
 		 
 		JSONArray groups = new JSONArray();
 	
